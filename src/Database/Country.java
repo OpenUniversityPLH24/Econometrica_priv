@@ -6,8 +6,9 @@
 package Database;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,7 +29,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Country.findAll", query = "SELECT c FROM Country c")
     , @NamedQuery(name = "Country.findByIsoCode", query = "SELECT c FROM Country c WHERE c.isoCode = :isoCode")
-    , @NamedQuery(name = "Country.findByName", query = "SELECT c FROM Country c WHERE c.name = :name")})
+    , @NamedQuery(name = "Country.findByName", query = "SELECT c FROM Country c WHERE c.name = :name")
+    , @NamedQuery(name = "Country.deleteAll", query = "DELETE FROM Country")})
 public class Country implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -39,8 +41,8 @@ public class Country implements Serializable {
     @Basic(optional = false)
     @Column(name = "NAME")
     private String name;
-    @OneToMany(mappedBy = "countryCode")
-    private Collection<CountryDataset> countryDatasetCollection;
+    @OneToMany(mappedBy = "countryCode" , cascade = {CascadeType.PERSIST , CascadeType.REMOVE, CascadeType.REFRESH})
+    private List<CountryDataset> countryDatasetList;
 
     public Country() {
     }
@@ -71,12 +73,12 @@ public class Country implements Serializable {
     }
 
     @XmlTransient
-    public Collection<CountryDataset> getCountryDatasetCollection() {
-        return countryDatasetCollection;
+    public List<CountryDataset> getCountryDatasetList() {
+        return countryDatasetList;
     }
 
-    public void setCountryDatasetCollection(Collection<CountryDataset> countryDatasetCollection) {
-        this.countryDatasetCollection = countryDatasetCollection;
+    public void setCountryDatasetList(List<CountryDataset> countryDatasetList) {
+        this.countryDatasetList = countryDatasetList;
     }
 
     @Override
@@ -102,6 +104,5 @@ public class Country implements Serializable {
     @Override
     public String toString() {
         return "Database.Country[ isoCode=" + isoCode + " ]";
-    }
-    
+    }    
 }

@@ -9,15 +9,9 @@ import Database.Country;
 import Database.CountryData;
 import Database.CountryDataset;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
 
 /**
  *
@@ -25,19 +19,20 @@ import javax.persistence.Query;
  */
 public class JPA {
 
-public static EntityManager em ;
-
+  public static EntityManager em ;
+  public static EntityManagerFactory emf;
     
 //    public static void main(String[] args) {
     public static void JPA() {
 //        DBManager dbm = new DBManager();
 //        dbm.DBManager();
+        emf = DBManager.getEmf();
         em = DBManager.getEm();
 //        em.getTransaction().begin();
         
 //        EntityManager em = new EntityManager();
 //       
-//        
+//         
 //        EntityManagerFactory emf = 
 //            Persistence.createEntityManagerFactory("JPATestPU");
 //        em = emf.createEntityManager();
@@ -53,100 +48,134 @@ public static EntityManager em ;
     
     em = DBManager.getEm();
     Country country = new Country();
-    
         try {
 //        System.out.println("name = " + name);
         country = em.createNamedQuery("Country.findByName",Country.class).setParameter("name", name).getSingleResult();
-//        System.out.println("Country ISO code = " + cntry.getIsoCode());
+//        System.out.println("Country ISO code = " + country.getIsoCode());
+        } catch (Exception ex){
+             System.out.println("Exception occurred " + ex.getMessage());
+              country  = null;
+        }
+        return country;
+    }
+
+    public static Country retreiveCountryByISO(String ISO){
+    
+    em = DBManager.getEm();
+    Country country = new Country();
+        try {
+//        System.out.println("name = " + name);
+        country = em.createNamedQuery("Country.findByIsoCode",Country.class).setParameter("isoCode", ISO).getSingleResult();
+//        System.out.println("Country ISO code = " + country.getIsoCode());
         return country;
         } catch (Exception ex){
              System.out.println("Exception occurred " + ex.getMessage());
-            return null;
+            return country;
         }
     }
     
-    public static void createCountry( Country country ) {
-//                                        Integer id, Date date, int quantity, float price, 
-//            Customer c, Stock s){
-        em.getTransaction().begin();
-//        Country c = new Country( country.getIsoCode(), country.getName() );
-//        Trans t = new  Trans( id,  date,  quantity,  price);
-        // αν κάνω τώρα persist, θα έχω σφάλμα γιατί υπάρχουν relationships
-        // ...θέτω σωστά τα relationships
-//        t.setCustomerId(c); // FK_CUSTOMER_ID
-//        t.setStockId(s); //FK_STOCK_ID
+    public static CountryDataset retreiveDataset(Country country, String type) {
+    
+//    em = DBManager.getEm();
+    List<CountryDataset> lst = new ArrayList();
+    CountryDataset dataset = new CountryDataset();
+            try {
+//        System.out.println("4th Point passed");
+        lst = em.createNamedQuery("CountryDataset.findBycountryCode",CountryDataset.class).setParameter("countryCode", country).getResultList();
+//        System.out.println("CountryDataset counts = " + lst.size());
+        for (int i=0; i< lst.size(); i++) {
+             if (lst.get(i).getName().contains(type)) {
+                 dataset = lst.get(i);
+                }
+            }
+        } catch (Exception ex){
+             System.out.println("Exception occurred " + ex.getMessage());
+        }
+//         System.out.println("CountryDataset Description = " + dataset.getDescription());   
+        return dataset;
+    }
+
+    public static CountryDataLst retreiveDataLst(CountryDataset dataset) {
+    
+//    em = DBManager.getEm();
+    CountryDataLst dataLst = new CountryDataLst();
+    List lst = new ArrayList();
+            try {
+//        System.out.println("4th Point passed");
+        lst = em.createNamedQuery("CountryData.findByDataset",CountryData.class).setParameter("dataset", dataset).getResultList();
+//        System.out.println("CountryDataset counts = " + lst.size());
+        for (int i=0; i < lst.size(); i++) {
+             dataLst.CountryDataLstAdd((CountryData) lst.get(i));
+        }
+        } catch (Exception ex){
+             System.out.println("Exception occurred " + ex.getMessage());
+        }
+//         System.out.println("CountryDataset Description = " + dataset.getDescription());   
+        return dataLst;
+    }
         
-        //...και τώρα το persist δεν θα έχει σφάλμα!
-        //το t είναι new, αλλά δεν είναι managed ακόμα
-        // (δεν έχει αναλάβει τη διαχείρησή του ο EntityManager)
+    public static void createCountry( Country country ) {
+        em = DBManager.getEm();
+        em.getTransaction().begin();
         
         em.persist(country);
-        // μετά το persist το t τώρα είναι managed!  
-        // τώρα δημιουργείται η εγγραφή στην DB και την βλέπει μόνο το 
-        // transaction αυτό 
-        
-        // τώρα δημιουργείται η εγγραφή στην DB και την βλέπουν όλοι
         em.getTransaction().commit(); 
-//        return c;
+ //       em.close();
     }
     
     public static void createCountryDataset( CountryDataset countryDataset ) {
-//                                        Integer id, Date date, int quantity, float price, 
-//            Customer c, Stock s){
+//        emf = DBManager.getEmf();
+        em = DBManager.getEm();
         em.getTransaction().begin();
-//        Country c = new Country( country.getIsoCode(), country.getName() );
-//        Trans t = new  Trans( id,  date,  quantity,  price);
-        // αν κάνω τώρα persist, θα έχω σφάλμα γιατί υπάρχουν relationships
-        // ...θέτω σωστά τα relationships
-//        t.setCustomerId(c); // FK_CUSTOMER_ID
-//        t.setStockId(s); //FK_STOCK_ID
-        CountryDataset cd = new CountryDataset(
-//                                               countryDataset.getDatasetId(),
-                                               countryDataset.getStartYear(),
-                                               countryDataset.getName(),
-                                               countryDataset.getDescription(),
-                                               countryDataset.getEndYear(),
-                                               countryDataset.getCountryCode());
-        //...και τώρα το persist δεν θα έχει σφάλμα!
-        //το t είναι new, αλλά δεν είναι managed ακόμα
-        // (δεν έχει αναλάβει τη διαχείρησή του ο EntityManager)
         
-        em.persist(cd);
-        // μετά το persist το t τώρα είναι managed!  
-        // τώρα δημιουργείται η εγγραφή στην DB και την βλέπει μόνο το 
-        // transaction αυτό 
-        
-        // τώρα δημιουργείται η εγγραφή στην DB και την βλέπουν όλοι
-        em.getTransaction().commit(); 
-//        return c;
+//        CountryDataset cd = new CountryDataset();
+//        cd.setDescription(countryDataset.getDescription());
+//        cd.setName(countryDataset.getName());
+//        cd.setStartYear(countryDataset.getStartYear());
+//        cd.setEndYear(countryDataset.getEndYear());
+//        cd.setCountryCode(countryDataset.getCountryCode());
+
+//        em.persist(cd);
+        em.persist(countryDataset);
+        em.getTransaction().commit();
+//        em.close();
     }
     
     public static void createCountryData( ArrayList<CountryData> countryDataLst ) {
-//                                        Integer id, Date date, int quantity, float price, 
-//            Customer c, Stock s){
+//        em = DBManager.getEm();
         em.getTransaction().begin();
-//        Country c = new Country( country.getIsoCode(), country.getName() );
-//        Trans t = new  Trans( id,  date,  quantity,  price);
-        // αν κάνω τώρα persist, θα έχω σφάλμα γιατί υπάρχουν relationships
-        // ...θέτω σωστά τα relationships
-//        t.setCustomerId(c); // FK_CUSTOMER_ID
-//        t.setStockId(s); //FK_STOCK_ID
         for (int i=0; i< countryDataLst.size(); i++) {
-        CountryData cd = new CountryData(countryDataLst.get(i).getDataset().getDatasetId(),
-                                         countryDataLst.get(i).getDataYear(),
-                                         countryDataLst.get(i).getValue());
-        //...και τώρα το persist δεν θα έχει σφάλμα!
-        //το t είναι new, αλλά δεν είναι managed ακόμα
-        // (δεν έχει αναλάβει τη διαχείρησή του ο EntityManager)
+        CountryData cd = new CountryData(countryDataLst.get(i).getDataYear(),
+                                         countryDataLst.get(i).getValue(),
+                                         countryDataLst.get(i).getDataset()
+        );
         
-        em.persist(cd);
+        em.persist(cd);       
         }
-        // μετά το persist το t τώρα είναι managed!  
-        // τώρα δημιουργείται η εγγραφή στην DB και την βλέπει μόνο το 
-        // transaction αυτό 
-        
-        // τώρα δημιουργείται η εγγραφή στην DB και την βλέπουν όλοι
+        em.getTransaction().commit();
+//        em.close();
+    }
+    
+    public static void createCountryDataInd( CountryData countryData ) {
+        em = DBManager.getEm();
+        em.getTransaction().begin();
+        CountryData cd = new CountryData(countryData.getDataYear(),
+                                         countryData.getValue(),
+                                         countryData.getDataset()
+        );
+        em.persist(cd);
         em.getTransaction().commit(); 
-//        return c;
+//        em.close();
+    }
+    
+    public static void removeAllCountries() {
+        em = DBManager.getEm();
+        em.getTransaction().begin();
+        em.createNamedQuery("CountryData.deleteAll").executeUpdate();
+        em.createNamedQuery("CountryDataset.deleteAll").executeUpdate();
+        em.createNamedQuery("Country.deleteAll").executeUpdate();
+        em.createNativeQuery("ALTER TABLE Country_Data ALTER COLUMN ID RESTART WITH 1").executeUpdate();
+        em.getTransaction().commit();
+        em.close();
     }
 }

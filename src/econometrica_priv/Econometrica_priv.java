@@ -6,7 +6,8 @@
 package econometrica_priv;
 
 import Connections.DBManager;
-import econometrica_GUI.MainFrame;
+import econometrica_GUI.MainForm;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import javax.persistence.EntityManager;
@@ -19,21 +20,15 @@ import org.jfree.ui.RefineryUtilities;
  */
 public class Econometrica_priv {
 
-
     final String msg = new String();
     protected static EntityManager em;
     protected static DBManager dbm;
     
-    /**
-     * @param args the command line arguments
-     * @throws java.text.ParseException
-     */
-    public static void main(String[] args) throws ParseException, SQLException {
-        // TODO code application logic here
-    
-        // Διαδικασία Σύνδεσης με την Βάση Δεδομένων για όλη 
-        // την διάρκεια εκτέλεσης της Εφαρμογής
-    if (em == null)
+   public static void main(String[] args) throws ParseException, FileNotFoundException, SQLException {
+        
+        
+        
+        if (em == null)
         {
             //ΚΛΗΣΗ FINAL CLASS DbConnectHelper ΓΙΑ ΣΥΝΔΕΣΗ ΣΤΗ ΒΑΣΗ
             //ΚΑΙ ΔΗΜΙΟΥΡΓΙΑ entity factory ΚΑΙ entity manager
@@ -41,12 +36,11 @@ public class Econometrica_priv {
             em = DBManager.getEm();
         }
 
-    MainFrame mf = new MainFrame();
+    MainForm mf = new MainForm();
     mf.setVisible(true);
     mf.pack();
     RefineryUtilities.centerFrameOnScreen(mf);
     mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
-
     }
 }
 

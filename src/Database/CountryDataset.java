@@ -6,8 +6,9 @@
 package Database;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,7 +36,9 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "CountryDataset.findByName", query = "SELECT c FROM CountryDataset c WHERE c.name = :name")
     , @NamedQuery(name = "CountryDataset.findByEndYear", query = "SELECT c FROM CountryDataset c WHERE c.endYear = :endYear")
     , @NamedQuery(name = "CountryDataset.findByDescription", query = "SELECT c FROM CountryDataset c WHERE c.description = :description")
-    , @NamedQuery(name = "CountryDataset.findByDatasetId", query = "SELECT c FROM CountryDataset c WHERE c.datasetId = :datasetId")})
+    , @NamedQuery(name = "CountryDataset.findByDatasetId", query = "SELECT c FROM CountryDataset c WHERE c.datasetId = :datasetId")
+    , @NamedQuery(name = "CountryDataset.findBycountryCode", query = "SELECT c FROM CountryDataset c WHERE c.countryCode = :countryCode")
+    , @NamedQuery(name = "CountryDataset.deleteAll", query = "DELETE FROM CountryDataset")})
 public class CountryDataset implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -58,8 +61,8 @@ public class CountryDataset implements Serializable {
     @JoinColumn(name = "COUNTRY_CODE", referencedColumnName = "ISO_CODE")
     @ManyToOne
     private Country countryCode;
-    @OneToMany(mappedBy = "dataset")
-    private Collection<CountryData> countryDataCollection;
+    @OneToMany(mappedBy = "dataset" , cascade = {CascadeType.PERSIST , CascadeType.REMOVE, CascadeType.REFRESH})
+    private List<CountryData> countryDataList;
 
     public CountryDataset() {
     }
@@ -68,19 +71,11 @@ public class CountryDataset implements Serializable {
         this.datasetId = datasetId;
     }
 
-    public CountryDataset(
-//                          Integer datasetId, 
-                          String startYear, 
-                          String name,
-                          String description,
-                          String endYear, 
-                          Country countryCode) {
+    public CountryDataset(Integer datasetId, String startYear, String name, String endYear) {
         this.datasetId = datasetId;
         this.startYear = startYear;
         this.name = name;
-        this.description = description;
         this.endYear = endYear;
-        this.countryCode = countryCode;
     }
 
     public String getStartYear() {
@@ -132,12 +127,12 @@ public class CountryDataset implements Serializable {
     }
 
     @XmlTransient
-    public Collection<CountryData> getCountryDataCollection() {
-        return countryDataCollection;
+    public List<CountryData> getCountryDataList() {
+        return countryDataList;
     }
 
-    public void setCountryDataCollection(Collection<CountryData> countryDataCollection) {
-        this.countryDataCollection = countryDataCollection;
+    public void setCountryDataList(List<CountryData> countryDataList) {
+        this.countryDataList = countryDataList;
     }
 
     @Override

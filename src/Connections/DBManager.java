@@ -18,15 +18,15 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author vborotis
+ * @author Losandas
  */
 public class DBManager {
-
-    private static final String PERSISTENCE_UNIT_NAME = "Econometrica_privPU";
+  
+    private static final String PERSISTENCE_UNIT_NAME = "EconometricaPU";
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver"; 
-    private static final String DB_URL = "jdbc:derby://localhost:1527/Econometrica_old;Connect=true";
-    private static final String USER = "system";
-    private static final String PASS = "system";
+    private static final String DB_URL = "jdbc:derby://localhost:1527/Econometrica;Connect=true";
+    private static final String USER = "ergasia3";
+    private static final String PASS = "ergasia3";
 //    "org.apache.derby.jdbc.ClientDriver"
     private static EntityManagerFactory emf; 
     private static EntityManager em;
@@ -95,7 +95,6 @@ public class DBManager {
             
             try 
             {
-
                 emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
                 em = emf.createEntityManager(); 
             } 
@@ -141,5 +140,6 @@ public class DBManager {
                 JOptionPane.showMessageDialog(null, "Αποτυχία σύνδεσης με τη Βάση Δεδομένων. Έλέγξτε αν ο Server της JavaDB είναι φορτωμένος.", "Σφάλμα", JOptionPane.ERROR_MESSAGE);
             }
         //}
-    }    
+    }
+    
 }
